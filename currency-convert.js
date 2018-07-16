@@ -1,36 +1,29 @@
-// USD, CAD
-//http://data.fixer.io/api/latest?access_key=286046f9d2c9c57b0a2ad5e68127caa6&format=1
-//https://restcountries.eu/rest/v2/currency/cad
 const axios = require('axios');
 
-// const getExchangeRate = (from,to) =>{
-//     return axios.get("http://data.fixer.io/api/latest?access_key=286046f9d2c9c57b0a2ad5e68127caa6")
-//     .then(response =>{
-//       const euro = 1/response.data.rates[from];
-//       const rate = euro * response.data.rates[to];
-//       return rate;
-//     });
-// };  
-
-// getExchangeRate('USD', 'CAD').then(rate =>{
-//     console.log(rate);
-// });
-
 const getExchangeRate = async (from,to) =>{
-    const response = await axios.get("http://data.fixer.io/api/latest?access_key=286046f9d2c9c57b0a2ad5e68127caa6");
-    const euro = 1/response.data.rates[from];
-    const rate = euro * response.data.rates[to];
-    return rate;
+    try{
+        const response = await axios.get("http://data.fixer.io/api/latest?access_key=286046f9d2c9c57b0a2ad5e68127caa6");
+        const euro = 1/response.data.rates[from];
+        const rate = euro * response.data.rates[to];
+        if(isNaN(rate) || isNaN(euro)){
+            throw new Error();
+        }
+        return rate;
+    }
+    catch (error){
+        throw new Error(`Unable to get exchange rate for ${from} and ${to}`);
+    }
+    
 };  
 
-// const getCountries = (currencyCode)=>{
-//     return axios.get(`https://restcountries.eu/rest/v2/currency/${currencyCode}`).then(response=>{
-//         return response.data.map(country=>country.name);
-//     });
-// };
 const getCountries = async (currencyCode)=>{
-   var response = await axios.get(`https://restcountries.eu/rest/v2/currency/${currencyCode}`);
-   return response.data.map(country=>country.name);
+    try{
+    var response = await axios.get(`https://restcountries.eu/rest/v2/currency/${currencyCode}`);
+    }
+    catch(error){
+        throw new Error(`Unable to get countries that use ${currencyCode}`);
+    }
+    return response.data.map(country=>country.name);
 };
 
 const convertCurrency = async (from,to,amount) =>{
@@ -42,4 +35,4 @@ const convertCurrency = async (from,to,amount) =>{
 };
 
 convertCurrency('BRL','USD',100).then(response=>console.log(response))
-.catch((error)=>console.log('Unable to find currency'));
+.catch((error)=>console.log(error.message));
